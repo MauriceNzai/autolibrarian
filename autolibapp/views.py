@@ -52,7 +52,8 @@ def signupbackend(request):
                     return redirect("staffsignup")
 
                 if not uname.isalnum():
-                    messages.error(request," Username should only contain letters and numbers, Please try again")
+                    messages.error(request,
+                            " Username should only contain letters and numbers, Please try again")
                     return redirect("staffsignup")
 
         # create the user
@@ -83,12 +84,12 @@ def loginbackend(request):
     if request.method =='POST':
         loginuname = request.POST["loginuname"]
         loginpassword=request.POST["loginpassword"]
-        RegisteredUser = authenticate(username=loginuname, password=loginpassword)
-        if RegisteredUser is not None:
-            dj_login(request, RegisteredUser)
+        registereduser = authenticate(username=loginuname, password=loginpassword)
+        if registereduser is not None:
+            dj_login(request, registereduser)
             request.session['is_logged'] = True
-            RegisteredUser = request.user.id
-            request.session["user_id"] = RegisteredUser
+            registereduser = request.user.id
+            request.session["user_id"] = registereduser
             messages.success(request, " Successfully logged in")
             return redirect('dashboard')
         else:
@@ -111,8 +112,8 @@ def dashboard(request):
     Redirects to the user's dashboard
     """
     if request.session.has_key('is_logged'):
-        AddBook = Book.objects.all()
-        return render(request,'dashboard.html',{'Book':Book})
+        book = Book.objects.all()
+        return render(request,'dashboard.html',{'Book':book})
     return redirect('stafflogin')
 
 
@@ -120,8 +121,27 @@ def addbook(request):
     """
     Rdirects to the addbook page
     """
-    AddBook = Book.objects.all()
-    return render(request,'addbook.html',{'Book':Book})
+    book = Book.objects.all()
+    return render(request,'addbook.html',{'Book':book})
+
+def addbookbackend(request):
+    """
+    Handles the backend processes of book addition
+    """
+    if request.session.has_key('is_logged'):
+        if request.method == "POST":
+            user_id = request.session["user_id"]
+            user1 = User.objects.get(id = user_id)
+            bookid = request.POST["bookid"]
+            author = request.POST["author"]
+            booktitle = request.POST["booktitle"]
+            subject = request.POST["subject"]
+            category=request.POST["category"]
+            add = Book(user = user1, bookid = bookid, bookname = bookname, subject = subject, category = category)
+            add.save()
+            book = AddBook.objects.all()
+            return render(request, 'dashboard.html', {'Book':book})
+    return redirect('/')
 
 def deletebook(request, id):
     """
