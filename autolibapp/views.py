@@ -189,12 +189,66 @@ def bookissue(request):
     """
     return render(request,'bookissue.html')
 
+def issuebookbackend(request):
+    """
+    Handles issue book backend processes
+    """
+    if request.method=='POST':
+        user_id = request.session["user_id"]
+        user1 = User.objects.get(id=user_id)
+        memberid = request.POST['memberid']
+        book1 = request.POST['book1']
+        store = Book.objects.filter(bookid = book1)
+
+def get_category(addbook):
+    """
+    Helper function for book issue functionality
+    """
+    if addbook.category == "Not-Issued":
+        addbook.category = "Issued"
+        obj = IssueBook(user = user1, memberid = memberid, book1 = book1)
+        obj.save()
+        addbook.save()
+    else:
+        messages.error(request," Book already issued !!!")
+        category_list = list(set(map(get_category,store)))
+        Issue=IssueBook.objects.all()
+        return render(request, 'bookissue.html', {'Issue':Issue})
+    return redirect('/')
 
 def returnbook(request):
     """
     Redirects to the return book page
     """
     return render(request,'returnbook.html')
+
+def returnbookbackend(request):
+    """
+    Handles backend processes of returning a book
+    """
+    if request.method=='POST':
+        user_id = request.session["user_id"]
+        user1 = User.objects.get(id = user_id)
+        bookid2 = request.POST['bookid2']
+        store1 = Book.objects.filter(bookid = bookid2)
+
+def return_book(returnbook):
+    """
+    Helper function for return book functionality
+    """
+    if returnbook.category == "Issued":
+        returnbook.category = "Not-Issued"
+        obj1=ReturnBook(user = user1, bookid2 = bookid2)
+        obj=IssueBook.objects.filter(book1 = bookid2)
+        obj.delete()
+        obj1.save()
+        return book.save()
+    else:
+        messages.error(request," Book not  issued !!!")
+        returncategorylist = list(set(map(return_book, store1)))
+        Return = ReturnBook.objects.all()
+        return render(request, 'returnbook.html', {'Return':Return})
+    return redirect('/')
 
 def editbookdetails(request, id):
     """
