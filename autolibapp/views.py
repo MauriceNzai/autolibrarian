@@ -133,15 +133,44 @@ def addbookbackend(request):
             user_id = request.session["user_id"]
             user1 = User.objects.get(id = user_id)
             bookid = request.POST["bookid"]
+            isbn = request.POST["isbn"]
             author = request.POST["author"]
             booktitle = request.POST["booktitle"]
             subject = request.POST["subject"]
             category=request.POST["category"]
-            add = Book(user = user1, bookid = bookid, bookname = bookname, subject = subject, category = category)
+            add = Book(user = user1, bookid = bookid, isbn = isbn, booktitle = booktitle,
+                    author = author, subject = subject, category = category)
             add.save()
-            book = AddBook.objects.all()
+            book = Book.objects.all()
             return render(request, 'dashboard.html', {'Book':book})
     return redirect('/')
+
+def editbookdetails(request, id):
+    """
+    Redirects to the edit book details page
+    """
+    if request.session.has_key('is_logged'):
+        Book = Book.objects.get(id=id)
+        return render(request, 'editdetails.html', {'Book':Book})
+    return redirect('login')
+
+def updatedetails(request,id):
+    """
+    Handles the backend processes of editing book details
+    """
+    if request.session.has_key('is_logged'):
+
+        if request.method=="POST":
+            add = Book.objects.get(id = id)
+            add.bookid = request.POST["bookid"]
+            add.isbn = request.POST["isbn"]
+            add.booktitle = request.POST["booktitle"]
+            add.author = request.POST["author"]
+            add.subject = request.POST["subject"]
+            add.category = request.POST['category']
+            add.save()
+            return redirect("dashboard")
+    return redirect('login')
 
 def deletebook(request, id):
     """
@@ -153,7 +182,6 @@ def deletebook(request, id):
         AddBook_info.delete()
         return redirect("dashboard")
     return redirect("login")
-
 
 def bookissue(request):
     """
